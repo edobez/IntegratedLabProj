@@ -60,11 +60,11 @@ W1blocked = 1/R6 * feedback(G4blocked,H1,+1);       % fdt rotore bloccato
 W1 = 1/R6 * feedback(G4,H1,+1);                     % fdt closed-loop anello corrente
 
 %% Calcolo fdt anello di velocità
-C2.Kp = 1;              % costante proporzionale PID
-C2.Ki = 0.4;              % costante integrativa PID
-C2.Kd = 0;              % costante derivativa PID
-C2.gamma = 0.1;         % coefficiente di filtro
-C2.Tf = C2.gamma * C2.Kd / C2.Kp;
+C2.Kp = 1.66;              % costante proporzionale PID
+C2.Ki = 3.25;              % costante integrativa PID
+C2.Kd = -0.0236;              % costante derivativa PID
+% C2.gamma = 0.1;         % coefficiente di filtro
+C2.Tf = 0.05;
 C2 = pid(C2.Kp,C2.Ki,C2.Kd,C2.Tf);
 
 H2 = Ktach;
@@ -72,6 +72,8 @@ H2 = Ktach;
 G5 = W1 * motor.KT * G2;    % Catena aperta plant
 G5.InputName = 'voltage';
 G5.OutputName = 'omega';
+
+G5_uf = minreal(zpk(G5))*H2;
 
 W2 = feedback(C2*G5,H2)*rad2rpm;    % Catena chiusa totale - uscita in rpm
 return;
