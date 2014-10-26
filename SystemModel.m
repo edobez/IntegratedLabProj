@@ -69,7 +69,7 @@ G5 = W1 * motor.KT * G2; % Catena aperta
 G5.InputName = 'voltage';
 G5.OutputName = 'omega';
 
-W2 = feedback(C2*G5,H2)
+W2 = feedback(C2*G5,H2);
 return;
 
 %% Step su W con Rv2 variabile
