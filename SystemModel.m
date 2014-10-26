@@ -65,11 +65,11 @@ C2 = pid(C2.Kp,C2.Ki,C2.Kd,C2.Tf);
 
 H2 = Ktach;
 
-G5 = C2 * G4 * motor.KT * G2; % Catena aperta 
+G5 = W1 * motor.KT * G2; % Catena aperta 
 G5.InputName = 'voltage';
 G5.OutputName = 'omega';
 
-W2 = feedback(G5,H2)
+W2 = feedback(C2*G5,H2)
 return;
 
 %% Step su W con Rv2 variabile
