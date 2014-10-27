@@ -18,10 +18,9 @@ R7 = 27e3;
 Rs = 0.1;       % Resistenza di shunt
 R8 = 350e3;     % DA MISURARE
 
-Rv2 = realp('Rv2', 1000);
+Rv2 = realp('Rv2', 10000);
 Rv2.Minimum = 0;
 Rv2.Maximum = 10e3;
-Rv2_vals = (Rv2.Minimum:1e3:Rv2.Maximum);
 
 %% Parametri motore DC
 motor.rpm_max = 4000;       % Max giri motore [rpm]
@@ -60,12 +59,12 @@ W1blocked = 1/R6 * feedback(G4blocked,H1,+1);       % fdt rotore bloccato
 W1 = 1/R6 * feedback(G4,H1,+1);                     % fdt closed-loop anello corrente
 
 %% Calcolo fdt anello di velocità
-C2.Kp = 1.66;              % costante proporzionale PID
-C2.Ki = 3.25;              % costante integrativa PID
-C2.Kd = -0.0236;              % costante derivativa PID
-% C2.gamma = 0.1;         % coefficiente di filtro
-C2.Tf = 0.05;
-C2 = pid(C2.Kp,C2.Ki,C2.Kd,C2.Tf);
+pid.Kp = realp('pidKp',1.66);           % costante proporzionale PID
+pid.Ki = realp('pidKi',3.25);           % costante integrativa PID
+pid.Kd = realp('pidKd',-0.0236);        % costante derivativa PID
+% C2.gamma = 0.1;                       
+pid.Tf = realp('pidTf',0.05);           % coefficiente di filtro
+C2 = pid.Kp + pid.Ki/s + pid.Kd*s/(pid.Tf*s+1);
 
 H2 = Ktach;
 
@@ -76,14 +75,22 @@ G5.OutputName = 'omega';
 G5_uf = minreal(zpk(G5))*H2;
 
 W2 = feedback(C2*G5,H2)*rad2rpm;    % Catena chiusa totale - uscita in rpm
-return;
+step(W2)
 
-%% Step su W con Rv2 variabile
-Wsample = zpk(replaceBlock(W1,'Rv2',Rv2_vals));
-t = linspace(0,0.04,100);
-for i = 1:11
-    y(:,i) = step(Wsample(:,:,1,i),t);
-end 
+%% Step su W con parametri variabili
+Rv2_vals = linspace(Rv2.Minimum,Rv2.Maximum,4);
+pidKp_vals = linspace(1,2,4);
+[Rv2grid,pidKpgrid] = ndgrid(Rv2_vals,pidKp_vals);
+Wsample = replaceBlock(W2,'Rv2',Rv2_vals);
+Wsample = replaceBlock(Wsample,'pidKp',pidKp_vals');
+Wsample.SamplingGrid = struct('Rv2',Rv2grid,'pidKp',pidKpgrid);
 
-mesh(t,Rv2_vals,y');
+% 
+% Wsample = zpk(replaceBlock(W1,'Rv2',Rv2_vals));
+% t = linspace(0,0.04,100);
+% for i = 1:11
+%     y(:,i) = step(Wsample(:,:,1,i),t);
+% end 
+% 
+% mesh(t,Rv2_vals,y');
 
