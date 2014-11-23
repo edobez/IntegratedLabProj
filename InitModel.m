@@ -53,10 +53,10 @@ C1 = -R8/(s*R8*C+1);        % "controllore" anello di corrente
 G4blocked = C1*-Vdc*G1;     % Fdt in catena aperta con rotore bloccato
 G4 = C1*-Vdc*G3;            % Fdt in catena aperta con rotore libero
 
-H1 = -(R4*Rs/R1) * 1/(R7+Rv2);
+H1 = (R4*Rs/R1) * 1/(R7+Rv2);
 
-W1blocked = 1/R6 * feedback(G4blocked,H1,+1);       % fdt rotore bloccato
-W1 = 1/R6 * feedback(G4,H1,+1);                     % fdt closed-loop anello corrente
+W1blocked = 1/R6 * feedback(G4blocked,H1);       % fdt rotore bloccato
+W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corrente
 
 %% Calcolo fdt anello di velocità
 % pid.Kp = realp('pidKp',1.66);           % costante proporzionale PID
