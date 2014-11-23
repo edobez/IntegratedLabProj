@@ -84,7 +84,7 @@ pid.i = -1/(pid.P1+pid.R6) * (pid.R9)/(s*pid.R9*pid.C4+1);
 pid.Ki = 1/(pid.C4*(pid.P1+pid.R6));
 
 pid.R10 = 1e3;
-pid.P3 = realp('P3',0); % Derivativo
+pid.P3 = realp('P3', 0); % Derivativo
 pid.P3.Minimum = 0;
 pid.P3.Maximum = 1e6;
 pid.C1 = 4.7e-9;
