@@ -78,7 +78,7 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1',50e3); % Integrativo
+pid.P1 = realp('P1',0); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 100e3;
 pid.C4 = 1e-6;
