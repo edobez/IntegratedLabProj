@@ -1,1 +1,1 @@
-step(W2*rad2rpm)
+step_varpar(W2*rad2rpm,'P3',linspace(0,10e3,5))

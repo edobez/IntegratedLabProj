@@ -21,7 +21,7 @@ plot([sp(1) sp(end)],yfit,'--');
 title('Friction torque');
 xlabel('RPM');
 ylabel('Nm');
-text(500,0.015,sprintf('Linearized Beta = %.2g Nm/RPM',betafit));
+text(500,0.015,sprintf('Linearized Beta = %.3g Nm/RPM',betafit));
 text(500,0.0145,sprintf('Linearized Coulomb friction = %.2g Nm',co));
 hold off;
 
@@ -33,7 +33,7 @@ title('Beta (RPM)');
 xlabel('RPM');
 ylabel('Nm/RPM');
 plot([0 4000],[betafit betafit],'--')
-text(1000,1e-6,sprintf('Linearized Beta = %.2g Nm/RPM',betafit));
+text(1000,1e-6,sprintf('Linearized Beta = %.3g Nm/RPM',betafit));
 
 figure;
 hold on;

@@ -6,8 +6,9 @@ rad2rpm = 60/(2*pi);
 rpm2rad = (2*pi)/60;
 
 %% Parametri sistema
-Vdc = 30;
+Vdc = 30/8;
 Ktach = 8/(4000*rpm2rad); % Guadagno tach. [V/rad/s]
+Vsat = 10;
 
 C = 10e-9;      % Capacità condensatore
 R1 = 1.8e3;
@@ -28,6 +29,7 @@ motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;          % Inerzia del motore []
 motor.beta = 1.275e-5;      % Attrito viscoso motore [Nm*s/rad] - DA MISURARE
+motor.coulomb = 0.0098;     % Offset dovuto alla forza di Coulomb [Nm]
 motor.KT = 0.046;           % Costante di coppia [Nm/A]
 motor.KE = motor.KT;
 
@@ -46,6 +48,10 @@ G2 = 1/(s*motor.J+motor.beta);              % parte meccanica motore
 G2.InputName = 'torque';
 G2.OutputName = 'rad/s';
 
+G2nl = 1/(s*motor.J);
+G2nl.InputName = 'torque';
+G2nl.OutputName = 'rad/s';
+
 G3 = feedback(G1,motor.KE*motor.KT*G2);     % parte elettrica motore + retroazione fem
 
 %% Calcolo fdt anello di corrente closed loop
@@ -62,7 +68,7 @@ W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corren
 % Proporzionale
 pid.R5 = 10e3;
 pid.R8 = 10e3;
-pid.P2 = realp('P2',450e3); 
+pid.P2 = realp('P2',650e3);
 pid.P2.Minimum = 0;
 pid.P2.Maximum = 1e6;
 pid.C3 = 1e-9;
@@ -72,16 +78,16 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1',1e3); % Integrativo
+pid.P1 = realp('P1',50e3); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 100e3;
 pid.C4 = 1e-6;
-pid.i = -1/(pid.P1+pid.R6) * (pid.R9)/(s*pid.R9*pid.C4+1);
+pid.i = -(pid.R9)/(pid.P1+pid.R6) * 1/(s*pid.R9*pid.C4+1);
 pid.Ki = 1/(pid.C4*(pid.P1+pid.R6));
 
 % Derivativo
 pid.R10 = 1e3;
-pid.P3 = realp('P3',0); 
+pid.P3 = realp('P3',10e3); 
 pid.P3.Minimum = 0;
 pid.P3.Maximum = 1e6;
 pid.C1 = 4.7e-9;
