@@ -48,7 +48,8 @@ G2 = 1/(s*motor.J+motor.beta);              % parte meccanica motore
 G2.InputName = 'torque';
 G2.OutputName = 'rad/s';
 
-G2nl = 1/(s*motor.J);
+Jdisco = 1e-6;
+G2nl = 1/(s*(motor.J+Jdisco));
 G2nl.InputName = 'torque';
 G2nl.OutputName = 'rad/s';
 
@@ -115,3 +116,7 @@ G5_uf = minreal(zpk(G5))*H2;
 
 W2 = feedback(C2*G5,H2);    % Catena chiusa totale
 
+%% Vettori velocità angolare e coppia resistente per la creazione della Look-Up table
+
+w = [0.00001; 600; 1000; 1435; 1870; 2300; 2760; 3210; 3660];
+Tr = [0.013; 0.010658298; 0.011627234; 0.01259617; 0.013124681; 0.013776511; 0.013917447; 0.014357872; 0.014534043];
