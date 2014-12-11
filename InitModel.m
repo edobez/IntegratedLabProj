@@ -28,8 +28,9 @@ motor.rpm_max = 4000;       % Max giri motore [rpm]
 motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;          % Inerzia del motore []
-motor.beta = 1.275e-5;      % Attrito viscoso motore [Nm*s/rad] - DA MISURARE
-motor.coulomb = 0.0098;     % Offset dovuto alla forza di Coulomb [Nm]
+motor.beta = 1.123e-5;      % Attrito viscoso motore [Nm*s/rad] - DA MISURARE
+motor.coulomb = 0.01;       % Offset dovuto alla forza di Coulomb [Nm]
+motor.stick = 0.013;        % Stiction [Nm]
 motor.KT = 0.046;           % Costante di coppia [Nm/A]
 motor.KE = motor.KT;
 
@@ -79,7 +80,7 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1',0); % Integrativo
+pid.P1 = realp('P1',10); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 100e3;
 pid.C4 = 1e-6;
