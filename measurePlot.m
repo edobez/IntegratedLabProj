@@ -41,8 +41,8 @@ end
 
 %% Plot data
 close all;
-tmax = 1;
-tstart = 0.5;
+tmax = 3;
+tstart = 1.5;
 offset = [5.402 1.5115 4.365 1.604 2.896];
 
 for i=1:5
@@ -64,9 +64,8 @@ for i=1:5
 
     linkaxes(ha,'x');
 end
-
+return;
 %% Plot comparison
-
 plot(t*ones(1,2),[tab.ref tab.speedf]);
 hold on;
 plot(sim_speed);

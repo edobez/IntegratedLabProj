@@ -6,7 +6,8 @@ rad2rpm = 60/(2*pi);
 rpm2rad = (2*pi)/60;
 
 %% Parametri sistema
-Vdc = 30/8;
+Vdc = 30;
+Kpwm = 1/8;
 Ktach = 8/(4000*rpm2rad); % Guadagno tach. [V/rad/s]
 Vsat = 10;
 
@@ -28,7 +29,7 @@ motor.rpm_max = 4000;       % Max giri motore [rpm]
 motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;          % Inerzia del motore []
-motor.Jadd = 0;
+motor.Jadd = 4e-6;
 motor.beta = 1.123e-5;      % Attrito viscoso motore [Nm*s/rad]
 motor.coulomb = 0.01;       % Offset dovuto alla forza di Coulomb [Nm]
 motor.stick = 0.013;        % Stiction [Nm]
@@ -70,7 +71,7 @@ W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corren
 % Proporzionale
 pid.R5 = 10e3;
 pid.R8 = 10e3;
-pid.P2 = realp('P2',650e3);
+pid.P2 = realp('P2',35e3);
 pid.P2.Minimum = 0;
 pid.P2.Maximum = 1e6;
 pid.C3 = 1e-9;
@@ -80,16 +81,17 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1',10); % Integrativo
+pid.P1 = realp('P1',30e3); % Integrativo
 pid.P1.Minimum = 0;
-pid.P1.Maximum = 100e3;
+pid.P1.Maximum = 1e6;
 pid.C4 = 1e-6;
 pid.i = -(pid.R9)/(pid.P1+pid.R6) * 1/(s*pid.R9*pid.C4+1);
 pid.Ki = 1/(pid.C4*(pid.P1+pid.R6));
+pid.bc = pid.R9/(pid.P1 + pid.R6); % back-calculation gain
 
 % Derivativo
 pid.R10 = 1e3;
-pid.P3 = realp('P3',0); 
+pid.P3 = realp('P3',50e3); 
 pid.P3.Minimum = 0;
 pid.P3.Maximum = 1e6;
 pid.C1 = 4.7e-9;
@@ -107,7 +109,9 @@ tach.Rv1 = 47e3;
 tach.Rv1_2 = 40.8e3; % Parte del potenziometro fra il pin centrale e massa
 tach.Rv1_1 = tach.Rv1 - tach.Rv1_2;
 
-H2 = Ktach;
+K = 0.0267; % Permette di avere un rapporto 8V/4000rpm
+H2 = K * tach.Rv1_2 / ( s*tach.Rv1*tach.R1*tach.C1 + tach.Rv1 + tach.R1);
+% H2 = Ktach;
 
 G5 = W1 * motor.KT * G2;    % Catena aperta plant
 G5.InputName = 'voltage';
