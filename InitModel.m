@@ -28,7 +28,8 @@ motor.rpm_max = 4000;       % Max giri motore [rpm]
 motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;          % Inerzia del motore []
-motor.beta = 1.123e-5;      % Attrito viscoso motore [Nm*s/rad] - DA MISURARE
+motor.Jadd = 0;
+motor.beta = 1.123e-5;      % Attrito viscoso motore [Nm*s/rad]
 motor.coulomb = 0.01;       % Offset dovuto alla forza di Coulomb [Nm]
 motor.stick = 0.013;        % Stiction [Nm]
 motor.KT = 0.046;           % Costante di coppia [Nm/A]
@@ -45,14 +46,13 @@ G1 = 1/(s*motor.La+motor.Ra);               % parte elettrica motore
 G1.InputName = 'voltage';
 G1.OutputName = 'current';
 
-G2 = 1/(s*motor.J+motor.beta);              % parte meccanica motore
+G2 = 1/(s*(motor.J+motor.Jadd)+motor.beta); % parte meccanica motore
 G2.InputName = 'torque';
 G2.OutputName = 'rad/s';
 
-Jdisco = 1e-6;
-G2nl = 1/(s*(motor.J+Jdisco));
-G2nl.InputName = 'torque';
-G2nl.OutputName = 'rad/s';
+% G2nl = 1/(s*(motor.J+Jdisco));
+% G2nl.InputName = 'torque';
+% G2nl.OutputName = 'rad/s';
 
 G3 = feedback(G1,motor.KE*motor.KT*G2);     % parte elettrica motore + retroazione fem
 
@@ -89,7 +89,7 @@ pid.Ki = 1/(pid.C4*(pid.P1+pid.R6));
 
 % Derivativo
 pid.R10 = 1e3;
-pid.P3 = realp('P3',10e3); 
+pid.P3 = realp('P3',0); 
 pid.P3.Minimum = 0;
 pid.P3.Maximum = 1e6;
 pid.C1 = 4.7e-9;
