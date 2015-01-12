@@ -1,3 +1,4 @@
 *.asv
 *.slx.autosave
 *.slx.original
+/ModelLinear_pdf_files/

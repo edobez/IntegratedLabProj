@@ -1,4 +1,4 @@
-%close all;
+close all;
 clc;
 
 s = tf('s');
@@ -44,12 +44,12 @@ motor.Ia_max = motor.Tm_max / motor.KT;
 
 %% Schemi a blocchi
 G1 = 1/(s*motor.La+motor.Ra);               % parte elettrica motore
-%G1.InputName = 'voltage';
-%G1.OutputName = 'current';
+% G1.InputName = 'voltage';
+% G1.OutputName = 'current';
 
 G2 = 1/(s*(motor.J+motor.Jadd)+motor.beta); % parte meccanica motore
-%G2.InputName = 'torque';
-%G2.OutputName = 'rad/s';
+% G2.InputName = 'torque';
+% G2.OutputName = 'rad/s';
 
 % G2nl = 1/(s*(motor.J+Jdisco));
 % G2nl.InputName = 'torque';
@@ -62,7 +62,7 @@ C1 = -R8/(s*R8*C+1);        % "controllore" anello di corrente
 G4blocked = C1*-Vdc*G1;     % Fdt in catena aperta con rotore bloccato
 G4 = C1*-Vdc*G3;            % Fdt in catena aperta con rotore libero
 
-H1 = (R4*Rs/R1) * 1/(R7+Rv2);
+H1 = Rs * (R4/R1) * 1/(R7+Rv2);
 
 W1blocked = 1/R6 * feedback(G4blocked,H1);       % fdt rotore bloccato
 W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corrente
@@ -71,8 +71,7 @@ W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corren
 % Proporzionale
 pid.R5 = 10e3;
 pid.R8 = 10e3;
-pid.P2 = realp('P2', 300e3); % Proporzionale 35e3 - 300e3
-%pid.P2 = realp('P2', 35e3); % Proporzionale 35e3
+pid.P2 = realp('P2',300e3);
 pid.P2.Minimum = 0;
 pid.P2.Maximum = 1e6;
 pid.C3 = 1e-9;
@@ -82,8 +81,7 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1', 55e3); % Integrativo 22e3 - 65e3 - 55 e3
-%pid.P1 = realp('P1', 22e3); % Integrativo 22e3 - 65e3
+pid.P1 = realp('P1',55e3); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 1e6;
 pid.C4 = 1e-6;
@@ -93,8 +91,7 @@ pid.bc = pid.R9/(pid.P1 + pid.R6); % back-calculation gain
 
 % Derivativo
 pid.R10 = 1e3;
-pid.P3 = realp('P3', 100e3); % Derivativo 0 - 50e3 - 100e3
-%pid.P3 = realp('P3', 0); % Derivativo 0 - 50e3
+pid.P3 = realp('P3',100e3); 
 pid.P3.Minimum = 0;
 pid.P3.Maximum = 1e6;
 pid.C1 = 4.7e-9;
@@ -102,7 +99,7 @@ pid.C2 = 1e-6;
 pid.d = -(s*(pid.R10+pid.P3)*pid.C2)/(1+s*(pid.R10+pid.P3)*pid.C1);
 pid.Kd = pid.C2*(pid.P3+pid.R10);
 
-% double([pid.Kp pid.Ki pid.Kd])
+double([pid.Kp pid.Ki pid.Kd])
 
 C2 = -(pid.p + pid.i + pid.d);
 

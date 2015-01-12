@@ -24,16 +24,16 @@ test{4} = ImportTestFnc(strcat(path,filename));
 test{4}.Properties.Description = 'Test 4: 0 +- 500 RPM';
 
 % Test 5: 2000 +- 2000 RPM (con rotore frenato)
-filename = 'test5.txt';
-test{5} = ImportTestFnc(strcat(path,filename));
-test{5}.Properties.Description = 'Test 5: 2000 +- 2000 RPM (con rotore frenato)';
+% filename = 'test5.txt';
+% test{5} = ImportTestFnc(strcat(path,filename));
+% test{5}.Properties.Description = 'Test 5: 2000 +- 2000 RPM (con rotore frenato)';
 
 clear path filename;
 
 %% Condition data
 k = -0.3830; % conversione tensione-corrente
 
-for i=1:5 
+for i=1:4 
     test{i}.speedf = smooth(test{i}.speed);
     test{i}.cur = test{i}.cur * k;
     test{i}.curf = smooth(test{i}.cur,41,'sgolay');    
@@ -41,23 +41,24 @@ end
 
 %% Plot data
 close all;
-tmax = 3;
-tstart = 1.5;
-offset = [5.402 1.5115 4.365 1.604 2.896];
+tmax = 5;
+tstart = 1;
+offset = [3.066 2.604 4.806 3.684];
+dec = 1;
 
-for i=1:5
+for i=4
     rows = test{i}.time < (offset(i) - tstart + tmax) & test{i}.time >= (offset(i) - tstart);
     tab = test{i}(rows,:);
-    t = tab.time - offset(i) + tstart;
+    t = tab.time(1:dec:end) - offset(i) + tstart;
     
     figure('Name',tab.Properties.Description,'NumberTitle','off');
     ha(1) = subplot(2,1,1);
-    plot(t*ones(1,2),[tab.ref tab.speedf]);
+    plot(t*ones(1,2),[tab.ref(1:dec:end) tab.speedf(1:dec:end)]);
     title('Set point - Tachometer output');
     ylabel('Volt');
 
     ha(2) = subplot(2,1,2);
-    plot(t,tab.curf);
+    plot(t,tab.curf(1:dec:end));
     title('Armature current');
     xlabel('Time');
     ylabel('Ampere');
@@ -69,6 +70,10 @@ return;
 plot(t*ones(1,2),[tab.ref tab.speedf]);
 hold on;
 plot(sim_speed);
+title('');
+ylabel('Volts');
+grid on;
+legend('Reference','Real system','Simulated system');
 
 
 
