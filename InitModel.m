@@ -31,6 +31,7 @@ motor.J = 5.18e-6;          % Inerzia del motore []
 motor.Jadd = 4e-6;
 motor.beta = 1.123e-5;      % Attrito viscoso motore [Nm*s/rad]
 motor.coulomb = 0.0102;       % Offset dovuto alla forza di Coulomb [Nm]
+% motor.coulomb = 0;
 motor.stick = 0.013;        % Stiction [Nm]
 motor.KT = 0.046;           % Costante di coppia [Nm/A]
 motor.KE = motor.KT;
@@ -70,7 +71,7 @@ W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corren
 % Proporzionale
 pid.R5 = 10e3;
 pid.R8 = 10e3;
-pid.P2 = realp('P2',2.2312e+04);
+pid.P2 = realp('P2',0);
 pid.P2.Minimum = 0;
 pid.P2.Maximum = 1e6;
 pid.C3 = 1e-9;
@@ -80,7 +81,7 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1',2.6064e+05); % Integrativo
+pid.P1 = realp('P1',1e6); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 1e6;
 pid.C4 = 1e-6;
@@ -102,11 +103,12 @@ double([pid.Kp pid.Ki pid.Kd])
 
 C2 = -(pid.p + pid.i);
 
-tach.K = 0.025; % Guadagno tachimetro
+tach.K = 0.025; % Guadagno tachimetro (DOGMATICO)
 tach.C1 = 1e-6;
 tach.R1 = 10e3;
 tach.Rv1 = 47e3;
-tach.Rv1_b = 4.3545e+04; % Parte del potenziometro fra il pin centrale e massa
+tach.Rv1_b = 4.3545e+04; % Parte del potenziometro fra il pin centrale e massa (valore giusto)
+% tach.Rv1_b = 30e3; % Variare questo per imbustaggio
 tach.Rv1_a = tach.Rv1 - tach.Rv1_b;
 
 tach.tau = tach.C1 * par_res(tach.R1,tach.Rv1);
@@ -121,6 +123,9 @@ G5.OutputName = 'omega';
 G5_uf = minreal(zpk(G5)*H2);
 
 W2 = feedback(C2*G5,H2);    % Catena chiusa totale
+L = C2*G5*H2;
+S = 1/(1+L);
+T = 1-S;
 
 %% Vettori velocità angolare e coppia resistente per la creazione della Look-Up table
 
