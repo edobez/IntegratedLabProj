@@ -1,9 +1,8 @@
-close all;
-clc;
 
 s = tf('s');
 rad2rpm = 60/(2*pi);
 rpm2rad = (2*pi)/60;
+par_res = @(r1,r2) (r1*r2)/(r1+r2);
 
 %% Parametri sistema
 Vdc = 30;
@@ -29,8 +28,8 @@ motor.rpm_max = 4000;       % Max giri motore [rpm]
 motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;          % Inerzia del motore []
-% motor.Jadd = 4e-6;
-motor.beta = 1.123e-6;      % Attrito viscoso motore [Nm*s/rad]
+motor.Jadd = 4e-6;
+motor.beta = 1.123e-5;      % Attrito viscoso motore [Nm*s/rad]
 motor.coulomb = 0.0102;       % Offset dovuto alla forza di Coulomb [Nm]
 motor.stick = 0.013;        % Stiction [Nm]
 motor.KT = 0.046;           % Costante di coppia [Nm/A]
@@ -47,7 +46,7 @@ G1 = 1/(s*motor.La+motor.Ra+Rs);               % parte elettrica motore
 % G1.InputName = 'voltage';
 % G1.OutputName = 'current';
 
-G2 = 1/(s*(motor.J)+motor.beta); % parte meccanica motore
+G2 = 1/(s*(motor.J+motor.Jadd)+motor.beta); % parte meccanica motore
 % G2.InputName = 'torque';
 % G2.OutputName = 'rad/s';
 
@@ -71,7 +70,7 @@ W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corren
 % Proporzionale
 pid.R5 = 10e3;
 pid.R8 = 10e3;
-pid.P2 = realp('P2',15e3);
+pid.P2 = realp('P2',2.2312e+04);
 pid.P2.Minimum = 0;
 pid.P2.Maximum = 1e6;
 pid.C3 = 1e-9;
@@ -81,7 +80,7 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1',3.9744e+04); % Integrativo
+pid.P1 = realp('P1',2.6064e+05); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 1e6;
 pid.C4 = 1e-6;
@@ -101,18 +100,19 @@ pid.Kd = pid.C2*(pid.P3+pid.R10);
 
 double([pid.Kp pid.Ki pid.Kd])
 
-C2 = -(pid.p + pid.i + pid.d);
-C2_pi = -(pid.p + pid.i);
+C2 = -(pid.p + pid.i);
 
+tach.K = 0.025; % Guadagno tachimetro
 tach.C1 = 1e-6;
 tach.R1 = 10e3;
 tach.Rv1 = 47e3;
-tach.Rv1_2 = 40.8e3; % Parte del potenziometro fra il pin centrale e massa
-tach.Rv1_1 = tach.Rv1 - tach.Rv1_2;
+tach.Rv1_b = 4.3545e+04; % Parte del potenziometro fra il pin centrale e massa
+tach.Rv1_a = tach.Rv1 - tach.Rv1_b;
 
-K = 0.0267; % Permette di avere un rapporto 8V/4000rpm
-H2 = K * tach.Rv1_2 / ( s*tach.Rv1*tach.R1*tach.C1 + tach.Rv1 + tach.R1);
-% H2 = Ktach;
+tach.tau = tach.C1 * par_res(tach.R1,tach.Rv1);
+tach.gain = (tach.K * tach.Rv1_b) / (tach.Rv1 + tach.R1);
+
+H2 = tach.gain * 1/(s*tach.tau + 1); 
 
 G5 = W1 * motor.KT * G2;    % Catena aperta plant
 G5.InputName = 'voltage';
@@ -121,7 +121,6 @@ G5.OutputName = 'omega';
 G5_uf = minreal(zpk(G5)*H2);
 
 W2 = feedback(C2*G5,H2);    % Catena chiusa totale
-W2_pi = feedback(C2_pi*G5,H2);
 
 %% Vettori velocità angolare e coppia resistente per la creazione della Look-Up table
 
