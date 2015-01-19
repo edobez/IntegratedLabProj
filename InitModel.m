@@ -28,11 +28,11 @@ motor.rpm_max = 4000;       % Max giri motore [rpm]
 motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;          % Inerzia del motore []
-motor.Jadd = 4e-6;
-motor.beta = 1.123e-5;      % Attrito viscoso motore [Nm*s/rad]
-motor.coulomb = 0.0102;       % Offset dovuto alla forza di Coulomb [Nm]
+motor.Jadd = 40e-6;
+motor.beta = 1.5327e-05;      % Attrito viscoso motore [Nm*s/rad]
+motor.coulomb = 0.0073;       % Offset dovuto alla forza di Coulomb [Nm]
 % motor.coulomb = 0;
-motor.stick = 0.013;        % Stiction [Nm]
+motor.stick = 0.009689;        % Stiction [Nm]
 motor.KT = 0.046;           % Costante di coppia [Nm/A]
 motor.KE = motor.KT;
 
@@ -59,8 +59,8 @@ G3 = feedback(G1,motor.KE*motor.KT*G2);     % parte elettrica motore + retroazio
 
 %% Calcolo fdt anello di corrente closed loop
 C1 = -R8/(s*R8*C+1);        % "controllore" anello di corrente
-G4blocked = C1*-Vdc*G1;     % Fdt in catena aperta con rotore bloccato
-G4 = C1*-Vdc*G3;            % Fdt in catena aperta con rotore libero
+G4blocked = C1*-Vdc*Kpwm*G1;     % Fdt in catena aperta con rotore bloccato
+G4 = C1*-Vdc*Kpwm*G3;            % Fdt in catena aperta con rotore libero
 
 H1 = Rs * (R4/R1) * 1/(R7+Rv2);
 
@@ -71,7 +71,7 @@ W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corren
 % Proporzionale
 pid.R5 = 10e3;
 pid.R8 = 10e3;
-pid.P2 = realp('P2',0);
+pid.P2 = realp('P2',5.0043e+04);
 pid.P2.Minimum = 0;
 pid.P2.Maximum = 1e6;
 pid.C3 = 1e-9;
@@ -81,7 +81,7 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 % Integrativo
 pid.R6 = 4.7e3;
 pid.R9 = 1e6;
-pid.P1 = realp('P1',1e6); % Integrativo
+pid.P1 = realp('P1',2.4557e+05); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 1e6;
 pid.C4 = 1e-6;

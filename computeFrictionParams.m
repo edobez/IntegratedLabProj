@@ -1,12 +1,13 @@
 %% Calcolo misure indirette
+
 Ia = misureB.rawCurrent * -R1/(Rs*R4); % Armature current
 misureB.frictionTorque = Ia * motor.KT;
-sp = misureB.shaftSpeed;
+sp = misureB.tach * 1/tach.gain;    % [rad/s]
 tau = misureB.frictionTorque;
-p = polyfit(sp(4:end),tau(4:end),1);
+p = polyfit(sp(1:end-2),tau(1:end-2),1);
 betafit = p(1)
 co = p(2)
-betafitRads = betafit / rpm2rad
+% betafitRads = betafit / rpm2rad
 beta = (tau - co) ./ sp;
 
 %% Plots data
@@ -33,7 +34,7 @@ plot(sp,beta);
 title('Beta (RPM)');
 xlabel('RPM');
 ylabel('Nm/RPM');
-plot([0 4000],[betafit betafit],'--')
+plot([0 -500],[betafit betafit],'--')
 text(1000,0.5e-6,sprintf('Linearized Beta = %.4g Nm/RPM',betafit));
 text(1000,0,sprintf('Linearized Beta = %.4g Nm/rad/s',betafit/rpm2rad));
 
