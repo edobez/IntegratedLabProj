@@ -8,7 +8,7 @@ par_res = @(r1,r2) (r1*r2)/(r1+r2);
 Vdc = 30;
 Kpwm = 1/8;
 Ktach = 8/(4000*rpm2rad); % Guadagno tach. [V/rad/s]
-Vsat = 10;
+Vsat = 11;
 
 C = 10e-9;      % Capacità condensatore
 R1 = 1.8e3;
@@ -28,9 +28,9 @@ motor.rpm_max = 4000;       % Max giri motore [rpm]
 motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;              % Inerzia del motore []
-motor.Jadd = 5.5e-6;
-motor.beta = 1.5327e-05;        % Attrito viscoso motore [Nm*s/rad]
-motor.coulomb = 0.0073;         % Offset dovuto alla forza di Coulomb [Nm]
+motor.Jadd = 6e-6;
+motor.beta = 1.5327e-05*0.65;        % Attrito viscoso motore [Nm*s/rad]
+motor.coulomb = 0.0073*0.85;         % Offset dovuto alla forza di Coulomb [Nm]
 motor.stick = 0.009689;         % Stiction [Nm]
 motor.KT = 0.046;               % Costante di coppia [Nm/A]
 motor.KE = motor.KT;
@@ -70,7 +70,7 @@ W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corren
 % Proporzionale
 pid.R5 = 10e3;
 pid.R8 = 10e3;
-pid.P2 = realp('P2',5.0043e+04);
+pid.P2 = realp('P2',4.7138e+04);
 pid.P2.Minimum = 0;
 pid.P2.Maximum = 1e6;
 pid.C3 = 1e-9;
@@ -79,13 +79,14 @@ pid.Kp = (pid.R8 + pid.P2)/pid.R5;
 
 % Integrativo
 pid.R6 = 10e3;
-pid.R9 = 1e12;
-pid.P1 = realp('P1', 2.4557e+05); % Integrativo
+pid.R9 = 1e9;
+pid.P1 = realp('P1', 115000); % Integrativo
 pid.P1.Minimum = 0;
 pid.P1.Maximum = 1e6;
 pid.C4 = 1e-6;
-pid.i = -(pid.R9)/(pid.P1+pid.R6) * 1/(s*pid.R9*pid.C4+1);
-pid.Ki = 1/(pid.C4*(pid.P1+pid.R6));
+% pid.i = -(pid.R9)/(pid.P1+pid.R6) * 1/(s*pid.R9*pid.C4+1);
+pid.i = -1/(s*pid.C4*(pid.P1+pid.R6));
+% pid.Ki = 1/(pid.C4*(pid.P1+pid.R6));
 pid.bc = pid.R9/(pid.P1 + pid.R6); % back-calculation gain
 
 % Derivativo
