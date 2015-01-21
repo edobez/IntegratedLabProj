@@ -7,7 +7,7 @@ par_res = @(r1,r2) (r1*r2)/(r1+r2);
 %% Parametri sistema
 Vdc = 30;
 Kpwm = 1/8;
-Ktach = 8/(4000*rpm2rad); % Guadagno tach. [V/rad/s]
+% Ktach = 8/(4000*rpm2rad); % Guadagno tach. [V/rad/s]
 Vsat = 11;
 
 C = 10e-9;      % Capacità condensatore
@@ -58,6 +58,10 @@ G3 = feedback(G1,motor.KE*motor.KT*G2);     % parte elettrica motore + retroazio
 
 %% Calcolo fdt anello di corrente closed loop
 C1 = -R8/(s*R8*C+1);        % "controllore" anello di corrente
+
+C1_dig = 2.6/(s*C*R7);      % controllore digitale
+C1_dig = c2d(tf(C1_dig),0.0001,'tustin');
+
 G4blocked = C1*-Vdc*Kpwm*G1;     % Fdt in catena aperta con rotore bloccato
 G4 = C1*-Vdc*Kpwm*G3;            % Fdt in catena aperta con rotore libero
 
@@ -102,6 +106,8 @@ pid.Kd = pid.C2*(pid.P3+pid.R10);
 double([pid.Kp pid.Ki pid.Kd])
 
 C2 = -(pid.p + pid.i);
+C2_dig = C2*R7/(R6*2.6);
+C2_dig = c2d(tf(C2_dig),0.001,'tustin');
 
 tach.K = 0.003/rpm2rad; % Guadagno tachimetro (dal datasheet)
 tach.C1 = 1e-6;
