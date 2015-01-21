@@ -28,9 +28,9 @@ motor.rpm_max = 4000;       % Max giri motore [rpm]
 motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;              % Inerzia del motore []
-motor.Jadd = 6e-6;
-motor.beta = 1.5327e-05*0.65;        % Attrito viscoso motore [Nm*s/rad]
-motor.coulomb = 0.0073*0.85;         % Offset dovuto alla forza di Coulomb [Nm]
+motor.Jadd = 5.8e-6;
+motor.beta = 1.5327e-05*0.0;        % Attrito viscoso motore [Nm*s/rad]
+motor.coulomb = 0.0073*0.78;         % Offset dovuto alla forza di Coulomb [Nm]
 motor.stick = 0.009689;         % Stiction [Nm]
 motor.KT = 0.046;               % Costante di coppia [Nm/A]
 motor.KE = motor.KT;

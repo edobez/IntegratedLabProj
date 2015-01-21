@@ -69,7 +69,7 @@ end
 return;
 
 %% Plot test results by combining the plots
-i = 3; % Scegliere test da plottare
+i = 4; % Scegliere test da plottare
 
 rows = test{i}.time < (offset(i) - stepstart + twidth) & test{i}.time >= (offset(i) - stepstart);
 tab = test{i}(rows,:);
@@ -89,8 +89,8 @@ tgen = linspace(0,twidth,twidth/Ts+1);
 figure('Name',tab.Properties.Description,'NumberTitle','off');
 hold on;
 plot(t*ones(1,2),[tab.reff(1:dec:end) tab.speedf(1:dec:end)]./tach.gain*rad2rpm);
-plot(tlin,ylin*rad2rpm,'r');
-plot(sim_omega3,'g');
+plot(tlin,ylin*rad2rpm);
+plot(sim_omega4);
 
 title('Motor Speed');
 ylabel('Volt');
