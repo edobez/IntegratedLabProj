@@ -19,9 +19,7 @@ Rs = 0.1;       % Resistenza di shunt
 
 R8 = realp('R8',100e6);
 
-Rv2 = realp('Rv2', 0);
-Rv2.Minimum = 0;
-Rv2.Maximum = 10e3;
+Rv2 = 0;
 
 %% Parametri motore DC
 motor.rpm_max = 4000;       % Max giri motore [rpm]
@@ -29,8 +27,10 @@ motor.Tm_max = 0.06;        % Coppia max [Nm]
 
 motor.J = 5.18e-6;              % Inerzia del motore []
 motor.Jadd = 5.8e-6;
-motor.beta = 1.5327e-05*0.0;        % Attrito viscoso motore [Nm*s/rad]
-motor.coulomb = 0.0073*0.78;         % Offset dovuto alla forza di Coulomb [Nm]
+% busta = [0 0.78];
+busta = [1 1];
+motor.beta = 1.5327e-05*busta(1);        % Attrito viscoso motore [Nm*s/rad]
+motor.coulomb = 0.0073*busta(2);         % Offset dovuto alla forza di Coulomb [Nm]
 motor.stick = 0.009689;         % Stiction [Nm]
 motor.KT = 0.046;               % Costante di coppia [Nm/A]
 motor.KE = motor.KT;
@@ -64,11 +64,14 @@ C1_dig = c2d(tf(C1_dig),0.0001,'tustin');
 
 G4blocked = C1*-Vdc*Kpwm*G1;     % Fdt in catena aperta con rotore bloccato
 G4 = C1*-Vdc*Kpwm*G3;            % Fdt in catena aperta con rotore libero
+% G4_dig = -C1_dig*-Vdc*Kpwm*G3;
 
 H1 = Rs * (R4/R1) * 1/(R7+Rv2);
+% H1_dig = Rs * (R4/R1) * 1/2.6;
 
 W1blocked = 1/R6 * feedback(G4blocked,H1);       % fdt rotore bloccato
 W1 = 1/R6 * feedback(G4,H1);                     % fdt closed-loop anello corrente
+% W1_dig = feedback(G4_dig,H1_dig);
 
 %% Calcolo fdt anello di velocità
 % Proporzionale
@@ -103,11 +106,13 @@ pid.C2 = 1e-6;
 pid.d = -(s*(pid.R10+pid.P3)*pid.C2)/(1+s*(pid.R10+pid.P3)*pid.C1);
 pid.Kd = pid.C2*(pid.P3+pid.R10);
 
-double([pid.Kp pid.Ki pid.Kd])
+%double([pid.Kp pid.Ki pid.Kd])
 
 C2 = -(pid.p + pid.i);
 C2_dig = C2*R7/(R6*2.6);
 C2_dig = c2d(tf(C2_dig),0.001,'tustin');
+
+%% Tachimetro
 
 tach.K = 0.003/rpm2rad; % Guadagno tachimetro (dal datasheet)
 tach.C1 = 1e-6;
@@ -127,8 +132,11 @@ G5.OutputName = 'omega';
 
 G5_uf = minreal(zpk(G5)*H2);
 
+% G5_dig = W1_dig * motor.KT * G2;
+
 W2 = feedback(C2*G5,H2);    % Catena chiusa totale
-L = C2*G5*H2;
+% W2_dig = feedback(C2_dig*G5_dig,H2);
+L = G5*H2;
 S = 1/(1+L);
 T = 1-S;
 

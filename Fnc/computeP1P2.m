@@ -4,9 +4,17 @@ function [ solP1,solP2,pole ] = compute_pot( Kdc,zero,pid)
 
 syms P1 P2
 
-eq1 = Kdc - ( (P1+pid.R6)*(P2+pid.R8)+pid.R5*pid.R9 ) / (pid.R5*(P1+pid.R6));
-eq2 = 1/zero - ( (P2+pid.R8)*(pid.C3*pid.R5*pid.R9 + P1 + pid.R6) ) / ...
-    ( (P1 + pid.R6)*(P2+pid.R8)+pid.R5*pid.R9 );
+% Equazioni con R9
+% eq1 = Kdc - ( (P1+pid.R6)*(P2+pid.R8)+pid.R5*pid.R9 ) / (pid.R5*(P1+pid.R6));
+% eq2 = 1/zero - ( (P2+pid.R8)*(pid.C3*pid.R5*pid.R9 + P1 + pid.R6) ) / ...
+%     ( (P1 + pid.R6)*(P2+pid.R8)+pid.R5*pid.R9 );
+
+% Equazioni senza R9
+tau1 = pid.C3*(pid.R8 + P2);
+Kp = (pid.R8 + P2)/pid.R5;
+Ki = 1/(pid.C4*(pid.R6 + P1));
+eq1 = Kdc == Ki;
+eq2 = 1/zero == Kp/Ki + tau1;
 
 [solP1,solP2] = solve(eq1,eq2);
 

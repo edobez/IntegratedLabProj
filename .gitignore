@@ -2,3 +2,5 @@
 *.slx.autosave
 *.slx.original
 /ModelLinear_pdf_files/
+*.mexw64
+/slprj/
